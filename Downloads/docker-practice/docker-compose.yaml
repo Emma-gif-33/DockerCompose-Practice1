@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15
+    container_name: cafeteria-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: galleta
+      POSTGRES_DB: cafeteria
+    expose:
+      - 5432
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cafeteria-net
+
+  web:
+    build: .
+    container_name: cafeteria-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DB_USER: app_user
+      DB_PASSWORD: docker_practice
+      DB_HOST: db
+      DB_NAME: cafeteria
+      DB_PORT: 5432
+    depends_on:
+      - db
+    networks:
+      - cafeteria-net
+
+networks:
+  cafeteria-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
